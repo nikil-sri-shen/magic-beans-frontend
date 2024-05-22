@@ -55,38 +55,52 @@ export default function SwapPage() {
       console.error('Address and exchange info are required for stxToTokenSwap')
       return
     }
-    //TODO:
     const microstacksAmount = stxAmount * microstacksPerSTX
     const microstacks = stxAmount * microstacksPerSTX
     // console.log(microstacks);
     //FIXME:
-    const stxPostCondition = makeStandardSTXPostCondition(
-      address,
-      FungibleConditionCode.Equal,
-      microstacksAmount
-    )
-    console.log(stxPostCondition)
+    // const stxPostCondition = makeStandardSTXPostCondition(
+    //   address,
+    //   FungibleConditionCode.Equal,
+    //   microstacksAmount
+    // )
+    // console.log(stxPostCondition)
 
     const minimumExchangeRateMultiple = 1 - priceSlippage / 100
     const minimumExchangeRate = exchangeRatio * minimumExchangeRateMultiple
     const minimumTokens = (stxAmount * minimumExchangeRate).toFixed(0)
 
-    const tokenPostCondition = makeContractFungiblePostCondition(
-      contractOwnerAddress,
-      exchangeContractName,
-      FungibleConditionCode.GreaterEqual,
-      minimumTokens,
-      createAssetInfo(contractOwnerAddress, 'magic-beans', 'magic-beans')
-    )
+    console.log(minimumExchangeRateMultiple, minimumExchangeRate, minimumTokens)
 
-    console.log(tokenPostCondition)
+    // const tokenPostCondition = makeContractFungiblePostCondition(
+    //   contractOwnerAddress,
+    //   exchangeContractName,
+    //   FungibleConditionCode.GreaterEqual,
+    //   minimumTokens,
+    //   createAssetInfo(contractOwnerAddress, 'magic-beans', 'magic-beans')
+    // )
+
+    // console.log(tokenPostCondition)
 
     const options: ContractCallRegularOptions = {
       contractAddress: contractOwnerAddress,
       contractName: exchangeContractName,
       functionName: 'stx-to-token-swap',
       functionArgs: [uintCV(microstacksAmount)],
-      postConditions: [stxPostCondition, tokenPostCondition],
+      postConditions: [
+        makeStandardSTXPostCondition(
+          address,
+          FungibleConditionCode.Equal,
+          microstacksAmount
+        ),
+        makeContractFungiblePostCondition(
+          contractOwnerAddress,
+          exchangeContractName,
+          FungibleConditionCode.GreaterEqual,
+          minimumTokens,
+          createAssetInfo(contractOwnerAddress, 'magic-beans', 'magic-beans')
+        ),
+      ],
       network,
       appDetails,
       onFinish: ({ txId }) =>
