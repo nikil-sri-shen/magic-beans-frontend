@@ -1,17 +1,24 @@
-import ActionButton from "./ActionButton";
-import NumberInput from "./NumberInput";
+import ActionButton from './ActionButton'
+import NumberInput from './NumberInput'
 
 interface SwapFormProps {
-  inputCurrency: string;
-  decimals: number;
+  inputCurrency: string
+  decimals: number
   swapFunction: (amount: number) => Promise<void>
 }
 
-export default function SwapForm({ inputCurrency, decimals, swapFunction }: SwapFormProps) {
+export default function SwapForm({
+  inputCurrency,
+  decimals,
+  swapFunction,
+}: SwapFormProps) {
   const performSwap = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const amount = (e.currentTarget.elements.namedItem("amount") as HTMLInputElement).valueAsNumber
+    const amount = (
+      e.currentTarget.elements.namedItem('amount') as HTMLInputElement
+    ).valueAsNumber
     await swapFunction(amount)
+    console.log(amount)
   }
 
   return (
@@ -28,7 +35,7 @@ export default function SwapForm({ inputCurrency, decimals, swapFunction }: Swap
             decimals={decimals}
             extraClasses="pr-12"
           />
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
             <span className="text-gray-500 sm:text-sm" id="amount-currency">
               {inputCurrency}
             </span>

@@ -1,23 +1,38 @@
-import { ContractCallRegularOptions, openContractCall } from "@stacks/connect";
-import { createAssetInfo, FungibleConditionCode, makeStandardFungiblePostCondition, makeStandardSTXPostCondition, uintCV } from "@stacks/transactions"
-import { useEffect, useState } from "react";
-import { StacksMocknet } from "@stacks/network";
-import ActionButton from "../components/ActionButton";
-import Auth from "../components/Auth";
-import NumberInput from "../components/NumberInput";
-import PageHeading from "../components/PageHeading";
-import fetchExchangeInfo, { ExchangeInfo } from "../lib/fetchExchangeInfo";
-import { appDetails, contractOwnerAddress, exchangeContractName, microstacksPerSTX } from "../lib/constants";
-import { useStacks } from "../providers/StacksProvider";
-import { useTransactionToasts } from "../providers/TransactionToastProvider";
-
+import { ContractCallRegularOptions, openContractCall } from '@stacks/connect'
+import {
+  createAssetInfo,
+  FungibleConditionCode,
+  makeStandardFungiblePostCondition,
+  makeStandardSTXPostCondition,
+  uintCV,
+} from '@stacks/transactions'
+import { useEffect, useState } from 'react'
+import { StacksMocknet } from '@stacks/network'
+import ActionButton from '../components/ActionButton'
+import Auth from '../components/Auth'
+import NumberInput from '../components/NumberInput'
+import PageHeading from '../components/PageHeading'
+import fetchExchangeInfo, { ExchangeInfo } from '../lib/fetchExchangeInfo'
+import {
+  appDetails,
+  contractOwnerAddress,
+  exchangeContractName,
+  microstacksPerSTX,
+} from '../lib/constants'
+import { useStacks } from '../providers/StacksProvider'
+import { useTransactionToasts } from '../providers/TransactionToastProvider'
 
 export default function LiquidityPage() {
-    const { addTransactionToast } = useTransactionToasts()
-    const { network, address } = useStacks()
-    const [exchangeInfo, setExchangeInfo] = useState<ExchangeInfo | undefined>(undefined)
+  const { addTransactionToast } = useTransactionToasts()
+  const { network, address } = useStacks()
+  const [exchangeInfo, setExchangeInfo] = useState<ExchangeInfo | undefined>(
+    undefined
+  )
 
-    const exchangeRatio = exchangeInfo && exchangeInfo.stxBalance ? exchangeInfo.tokenBalance / exchangeInfo.stxBalance : undefined
+  const exchangeRatio =
+    exchangeInfo && exchangeInfo.stxBalance
+      ? exchangeInfo.tokenBalance / exchangeInfo.stxBalance
+      : undefined
 
   const fetchExchangeInfoOnLoad = async () => {
     if (!address) {
@@ -37,23 +52,27 @@ export default function LiquidityPage() {
     e.preventDefault()
 
     if (!address) {
-      console.error("Must be logged in to provide liquidity")
+      console.error('Must be logged in to provide liquidity')
       return
     }
-    console.log("Providing liquidity...")
+    console.log('Providing liquidity...')
 
     const network = new StacksMocknet()
 
     // (contract-call? .beanstalk-exchange provide-liquidity u1000 u2000)
-    const stxAmount = (e.currentTarget.elements.namedItem("stx-amount") as HTMLInputElement).valueAsNumber
+    const stxAmount = (
+      e.currentTarget.elements.namedItem('stx-amount') as HTMLInputElement
+    ).valueAsNumber
     const microstacksAmount = stxAmount * microstacksPerSTX
 
-    const tokenAmount = (e.currentTarget.elements.namedItem("token-amount") as HTMLInputElement).valueAsNumber
+    const tokenAmount = (
+      e.currentTarget.elements.namedItem('token-amount') as HTMLInputElement
+    ).valueAsNumber
 
     const stxPostCondition = makeStandardSTXPostCondition(
       address,
       FungibleConditionCode.Equal,
-      microstacksAmount,
+      microstacksAmount
     )
 
     const tokenPostCondition = makeStandardFungiblePostCondition(
@@ -67,14 +86,12 @@ export default function LiquidityPage() {
       contractAddress: contractOwnerAddress,
       contractName: exchangeContractName,
       functionName: 'provide-liquidity',
-      functionArgs: [
-        uintCV(microstacksAmount),
-        uintCV(tokenAmount),
-      ],
+      functionArgs: [uintCV(microstacksAmount), uintCV(tokenAmount)],
       postConditions: [stxPostCondition, tokenPostCondition],
       network,
       appDetails,
-      onFinish: ({ txId }) => addTransactionToast(txId, `Providing liquidity (${stxAmount} STX)...`),
+      onFinish: ({ txId }) =>
+        addTransactionToast(txId, `Providing liquidity (${stxAmount} STX)...`),
     }
 
     await openContractCall(options)
@@ -89,20 +106,30 @@ export default function LiquidityPage() {
     }
 
     // toFixed(6) rounds to 6 decimal places, the + removes trailing 0s. Eg. 0.050000 -> 0.05
-    return <p>1 STX = <b>{+exchangeRatio.toFixed(6)}</b> Magic Beans</p>
+    return (
+      <p>
+        1 STX = <b>{+exchangeRatio.toFixed(6)}</b> Magic Beans
+      </p>
+    )
   }
 
   return (
-    <div className="flex flex-col items-stretch max-w-4xl gap-8 m-auto">
+    <div className="m-auto flex max-w-4xl flex-col items-stretch gap-8">
       <PageHeading>Provide Liquidity</PageHeading>
 
       <Auth />
 
       {makeExchangeRatioSection()}
 
-      <form className="flex flex-row items-end gap-4" onSubmit={provideLiquidity}>
+      <form
+        className="flex flex-row items-end gap-4"
+        onSubmit={provideLiquidity}
+      >
         <div>
-          <label htmlFor="stx-amount" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="stx-amount"
+            className="block text-sm font-medium text-gray-700"
+          >
             STX to provide
           </label>
           <div className="mt-1">
@@ -116,7 +143,10 @@ export default function LiquidityPage() {
         </div>
 
         <div>
-          <label htmlFor="token" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="token"
+            className="block text-sm font-medium text-gray-700"
+          >
             Magic Beans to provide
           </label>
           <div className="mt-1">
@@ -129,9 +159,7 @@ export default function LiquidityPage() {
           </div>
         </div>
 
-        <ActionButton type="submit">
-          Provide Liquidity
-        </ActionButton>
+        <ActionButton type="submit">Provide Liquidity</ActionButton>
       </form>
     </div>
   )

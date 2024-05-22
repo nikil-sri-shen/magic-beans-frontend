@@ -12,6 +12,7 @@ const AuthContext = createContext<StacksContextValue | undefined>(undefined);
 
 export default function StacksProvider({ children }: PropsWithChildren<{}>) {
   const [userData, setUserData] = useState<UserData | undefined>(undefined);
+  
 
   const network = new StacksMocknet()
   const appConfig = new AppConfig(['store_write'])
@@ -21,14 +22,17 @@ export default function StacksProvider({ children }: PropsWithChildren<{}>) {
   useEffect(() => {
     if (userSession.isSignInPending()) {
       userSession.handlePendingSignIn().then((userData) => {
+        console.log(userData);
         setUserData(userData);
       });
     } else if (userSession.isUserSignedIn()) {
+      console.log(userData);
       setUserData(userSession.loadUserData());
     }
   }, []);
 
   const value: StacksContextValue = { network, address, userSession };
+  console.log(value.address);
 
   return (
     <AuthContext.Provider value={value}>

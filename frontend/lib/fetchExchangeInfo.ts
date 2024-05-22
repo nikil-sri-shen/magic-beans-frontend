@@ -1,15 +1,19 @@
-import { StacksNetwork } from "@stacks/network";
-import { callReadOnlyFunction, cvToValue } from "@stacks/transactions";
-import { contractOwnerAddress, exchangeContractName, microstacksPerSTX } from "./constants";
+import { StacksNetwork } from '@stacks/network'
+import { callReadOnlyFunction, cvToValue } from '@stacks/transactions'
+import {
+  contractOwnerAddress,
+  exchangeContractName,
+  microstacksPerSTX,
+} from './constants'
 
 export interface ExchangeInfo {
-  stxBalance: number,
+  stxBalance: number
   tokenBalance: number
 }
 
 export default async function fetchExchangeInfo(
   network: StacksNetwork,
-  userAddress: string,
+  userAddress: string
 ): Promise<ExchangeInfo> {
   const stxBalanceResponse = await callReadOnlyFunction({
     contractAddress: contractOwnerAddress,
